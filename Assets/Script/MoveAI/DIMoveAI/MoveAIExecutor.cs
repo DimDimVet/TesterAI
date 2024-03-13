@@ -1,17 +1,24 @@
+using System;
 using UnityEngine;
 
 namespace LogicAI
 {
-    struct SettingsMoveAI
+    public struct SettingsMoveAI
     {
         public int HashGameObject;
-        public Quaternion CurrentGameObjectRotation;
+        public Transform GameObjectTransform;
         public float SpeedRotation;
+        public float SpeedMove;
+        public Vector3 Target;
 
-        public Vector3 CurrentPositionGameObject;
+        //public Quaternion CurrentGameObjectRotation;
+        //public Vector3 CurrentPositionGameObject;
     }
     public class MoveAIExecutor : IMoveAIExecutor
     {
+        public Func<SettingsMoveAI> OnSettingsMoveAI { get { return onSettingsMoveAI; } set { onSettingsMoveAI = value; } }
+        private Func<SettingsMoveAI> onSettingsMoveAI;
+
         private Vector3 direction;
         private Quaternion rotationTarget, lookRotationTarget;
         private SettingsMoveAI settings;
@@ -29,7 +36,7 @@ namespace LogicAI
         public void SetTarget(Transform gameObject, Vector3 target)
         {
             direction = target - gameObject.position;
-            settings.CurrentGameObjectRotation = gameObject.rotation;
+            settings.GameObjectTransform.rotation = gameObject.rotation;
         }
         public void CurrentTarget()
         {
@@ -38,7 +45,7 @@ namespace LogicAI
         public Quaternion GetRotationTarget()
         {
             lookRotationTarget = Quaternion.LookRotation(direction);
-            rotationTarget = Quaternion.Lerp(settings.CurrentGameObjectRotation,
+            rotationTarget = Quaternion.Lerp(settings.GameObjectTransform.rotation,
                                             lookRotationTarget,
                                             settings.SpeedRotation);
             return rotationTarget;
