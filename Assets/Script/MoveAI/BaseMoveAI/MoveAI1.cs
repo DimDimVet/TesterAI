@@ -3,9 +3,11 @@ using Zenject;
 
 namespace LogicAI
 {
-    public class MoveAI : MonoBehaviour
+    public class MoveAI1 : MonoBehaviour
     {
-        [SerializeField] private Transform transforms;
+        private MoveAI moveAI;
+
+        [SerializeField] private Transform target;
         [SerializeField][Range(0, 100)] private float speedForward = 1f;
         [SerializeField][Range(0, 100)] private float speedTurn = 1f;
         private Quaternion targetRotation;
@@ -13,12 +15,12 @@ namespace LogicAI
 
         private bool isStopClass = false, isRun = false;
 
-        private IMoveAIExecutor moveAI;
-        [Inject]
-        public void Init(IMoveAIExecutor _moveAI)
-        {
-            moveAI = _moveAI;
-        }
+        //private IMoveAIExecutor moveAI;
+        //[Inject]
+        //public void Init(IMoveAIExecutor _moveAI)
+        //{
+        //    moveAI = _moveAI;
+        //}
         void Start()
         {
             SetClass();
@@ -27,7 +29,10 @@ namespace LogicAI
         {
             if (!isRun)
             {
-                moveAI.SetMoveAI(gameObject.GetHashCode(), speedTurn);
+                moveAI = new MoveAI(this.gameObject);
+                moveAI.SetSpeed(speedForward, speedTurn);
+                moveAI.SetTarget(target);
+                //moveAI.SetMoveAI(gameObject.GetHashCode(), speedTurn);
                 thisRigibody = gameObject.GetComponent<Rigidbody>();
                 if (!(thisRigibody as Rigidbody))
                 {
@@ -46,11 +51,14 @@ namespace LogicAI
         }
         private void RunUpdate()
         {
-            moveAI.SetTarget(gameObject.transform, transforms.position);
+            gameObject.transform.rotation=moveAI.GetRotation();
+            thisRigibody.velocity = moveAI.GetMove();
+            //moveAI.SetTarget(gameObject.transform, transforms.position);
 
-            transform.rotation = moveAI.GetRotationTarget();
-            thisRigibody.velocity= moveAI.GetVelocityTarget()*speedForward;
+            //transform.rotation = moveAI.GetRotationTarget();
+            //thisRigibody.velocity= moveAI.GetVelocityTarget()*speedForward;
         }
+
     }
 }
 
